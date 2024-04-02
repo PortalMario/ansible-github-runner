@@ -1,0 +1,11 @@
+[Unit]
+Description=GitHub Runner Service
+
+[Service]
+WorkingDirectory={{ service["working_dir"] }}
+User={{ service["user"] }}
+Type=simple
+ExecStart=/bin/bash run.sh
+
+[Install]
+WantedBy=multi-user.target

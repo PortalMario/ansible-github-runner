@@ -1,0 +1,85 @@
+---
+- name: Ensure git package
+  ansible.builtin.package:
+    name: git
+    state: present
+  become: true
+
+- name: Get latest runner tag # noqa: command-instead-of-shell
+  ansible.builtin.shell:
+    cmd: |
+      set -o pipefail
+      git ls-remote --tags https://github.com/actions/runner.git | awk '{print $2}' | sed 's/refs\/tags\///g' | sort -V | tail -1
+    # ansible-lint: disable=command-instead-of-module
+    executable: /bin/bash
+  register: latest_tag
+  changed_when: latest_tag.rc != 0
+  when: ansible_facts.system == 'Linux'
+
+- name: Create runner user
+  ansible.builtin.user:
+    name: "{{ service['user'] }}"
+  become: true
+
+- name: Create working directory
+  ansible.builtin.file:
+    path: /srv/actions_runner
+    state: directory
+    owner: "{{ service['user'] }}"
+    group: "{{ service['user'] }}"
+    mode: '0744'
+  become: true
+
+- name: Check current version
+  ansible.builtin.command:
+    cmd: ls /srv/actions_runner/linux-{{ runner_arch_git }}-{{ latest_tag.stdout }}.tar.gz
+  register: is_latest_installed
+  changed_when: "is_latest_installed.rc != 0"
+  failed_when: false
+  become: true
+
+- name: Download latest runner
+  ansible.builtin.uri:
+    url: https://github.com/actions/runner/releases/download/{{ latest_tag.stdout }}/actions-runner-linux-{{ runner_arch_git }}-{{ latest_tag.stdout | replace('v', '') }}.tar.gz # noqa: yaml[line-length]
+    dest: /srv/actions_runner/linux-{{ runner_arch_git }}-{{ latest_tag.stdout }}.tar.gz
+    owner: "{{ service['user'] }}"
+    group: "{{ service['user'] }}"
+  become: true
+  when: is_latest_installed.rc != 0
+
+- name: Unpack latest runner
+  ansible.builtin.command:
+    chdir: /srv/actions_runner/
+    cmd: su -c 'tar xzf /srv/actions_runner/linux-{{ runner_arch_git }}-{{ latest_tag.stdout }}.tar.gz' "{{ service['user'] }}"
+  become: true
+  register: unpack_return
+  changed_when: unpack_return.rc != 0
+  when: is_latest_installed.rc != 0
+
+- name: Get runner token
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/{{ repo }}/actions/runners/registration-token
+    method: POST
+    status_code: 201
+    headers:
+      Accept: "application/vnd.github+json"
+      Authorization: "Bearer {{ auth_token }}"
+  no_log: true
+  register: runner_token
+  when: is_latest_installed.rc != 0
+
+- name: Configure latest runner
+  ansible.builtin.command:
+    chdir: /srv/actions_runner/
+    cmd: |-
+      su -c '/bin/bash config.sh --unattended \
+      --url https://github.com/{{ repo }} \
+      --token {{ runner_token.json["token"] }} \
+      --labels ansible_deployed' "{{ service['user'] }}"
+  become: true
+  no_log: true
+  when: is_latest_installed.rc != 0
+  register: return_configure_runner
+  changed_when: return_configure_runner.rc != 0
+  notify:
+    - Restart GithubRunner Service

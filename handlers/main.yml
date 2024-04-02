@@ -1,0 +1,11 @@
+---
+- name: Reload systemctl
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+  become: true
+
+- name: Restart GithubRunner Service
+  ansible.builtin.systemd_service:
+    state: restarted
+    name: github-runner.service
+  become: true

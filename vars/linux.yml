@@ -1,0 +1,3 @@
+service:
+  user: "github-runner"
+  working_dir: "/srv/actions_runner"

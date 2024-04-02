@@ -1,0 +1,6 @@
+---
+exclude_paths:
+  - LICENSE
+  - README.md
+  - .github
+  - .ansible-lint
