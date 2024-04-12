@@ -1,8 +1,7 @@
 name: ansible-lint
 on:
   push:
-    branches:
-      - main
+
 jobs:
   build:
     name: Ansible Lint

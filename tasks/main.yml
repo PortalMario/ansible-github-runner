@@ -1,5 +1,9 @@
 ---
-- name: Include linux vars
+- name: Include repo vars
+  ansible.builtin.include_vars: repo.yml
+  no_log: true
+
+- name: Include default vars
   ansible.builtin.include_vars: default.yml
   no_log: true
 
