@@ -1,5 +1,5 @@
 - name: Example # noqa: role-name[path]
-  hosts: localhost
+  hosts: GitHub-Runner
 
   roles:
     - ./

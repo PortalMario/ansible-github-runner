@@ -1,11 +1,10 @@
-repo: <owner/repo>
-auth_token: <github-auth-token>
-
-### Defaults
 runner_arch_git: |-
-  {%- if ansible_facts.architecture in 'arm' and ansible_facts.architecture in '64' -%}
+  {%- if ('arm' in ansible_facts.architecture and
+    '64' in ansible_facts.architecture) or
+    ('aarch' in ansible_facts.architecture and
+    '64' in ansible_facts.architecture) -%}
   arm64
-  {%- elif ansible_facts.architecture in 'arm' -%}
+  {%- elif 'arm' in ansible_facts.architecture -%}
   arm
   {%- else -%}
   x64
