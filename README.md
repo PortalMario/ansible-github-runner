@@ -26,6 +26,13 @@ ansible-playbook -i example_inventory.yml example_playbook.yml --connection=loca
 ```
 This will add a user (`github-runner`) and a systemd service (`github-runner.service`) for the runner. Files will only be stored at: `/srv/actions-runner`. Runners added by this ansible role will receive the tag: `ansible_deployed`.
 
+# Remove Runner
+To remove the runner, just add `-e "remove_runner=true"` to the end of the "ansible-playbook" command.
+```
+ansible-playbook -i example_inventory.yml example_playbook.yml --connection=local -e "remove_runner=true"
+```
+This will fully the runner and all of its files. (Keep in mind that systemd journal logs will persist if runner was a linux system.)
+
 # Sensitive Data
 Please keep in mind that both the github auth token (like a classic PAT) and the runner registration token are considered as sensitive data which should not be kept as plaintext within logs or files (like `vars/repo.yml`). The `no_log` option should be enabled on all relevent tasks, which is already done within this role. (However it is not guaranteed that all occurences of sensetive data within logs are covered by this role)
 

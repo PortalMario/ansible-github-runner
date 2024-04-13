@@ -23,7 +23,7 @@
 
 - name: Create working directory
   ansible.builtin.file:
-    path: /srv/actions_runner
+    path: "{{ service['working_dir'] }}"
     state: directory
     owner: "{{ service['user'] }}"
     group: "{{ service['user'] }}"
@@ -32,7 +32,7 @@
 
 - name: Check current version
   ansible.builtin.command:
-    cmd: ls /srv/actions_runner/linux-{{ runner_arch_git }}-{{ latest_tag.stdout }}.tar.gz
+    cmd: "ls {{ service['working_dir'] }}/linux-{{ runner_arch_git }}-{{ latest_tag.stdout }}.tar.gz"
   register: is_latest_installed
   changed_when: "is_latest_installed.rc != 0"
   failed_when: false
@@ -41,7 +41,7 @@
 - name: Download latest runner
   ansible.builtin.uri:
     url: https://github.com/actions/runner/releases/download/{{ latest_tag.stdout }}/actions-runner-linux-{{ runner_arch_git }}-{{ latest_tag.stdout | replace('v', '') }}.tar.gz # noqa: yaml[line-length]
-    dest: /srv/actions_runner/linux-{{ runner_arch_git }}-{{ latest_tag.stdout }}.tar.gz
+    dest: "{{ service['working_dir'] }}/linux-{{ runner_arch_git }}-{{ latest_tag.stdout }}.tar.gz"
     owner: "{{ service['user'] }}"
     group: "{{ service['user'] }}"
   become: true
@@ -49,8 +49,8 @@
 
 - name: Unpack latest runner
   ansible.builtin.command:
-    chdir: /srv/actions_runner/
-    cmd: su -c 'tar xzf /srv/actions_runner/linux-{{ runner_arch_git }}-{{ latest_tag.stdout }}.tar.gz' "{{ service['user'] }}"
+    chdir: "{{ service['working_dir'] }}/"
+    cmd: su -c 'tar xzf {{ service['working_dir'] }}/linux-{{ runner_arch_git }}-{{ latest_tag.stdout }}.tar.gz' "{{ service['user'] }}"
   become: true
   register: unpack_return
   changed_when: unpack_return.rc != 0
@@ -70,7 +70,7 @@
 
 - name: Configure latest runner
   ansible.builtin.command:
-    chdir: /srv/actions_runner/
+    chdir: "{{ service['working_dir'] }}/"
     cmd: |-
       su -c '/bin/bash config.sh --unattended \
       --url https://github.com/{{ repo }} \

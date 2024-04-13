@@ -11,7 +11,17 @@
   ansible.builtin.include_vars: linux.yml
   when: ansible_facts.system == 'Linux'
 
-- name: Setup runner
+
+- name: Setup Linux runner
   ansible.builtin.include_tasks:
     file: runner_linux.yml
-  when: ansible_facts.system == 'Linux'
+  when:
+    - ansible_facts.system == 'Linux'
+    - not remove_runner
+
+- name: Remove Linux runner
+  ansible.builtin.include_tasks:
+    file: remove_linux.yml
+  when:
+    - ansible_facts.system == 'Linux'
+    - remove_runner

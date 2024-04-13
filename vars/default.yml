@@ -1,3 +1,4 @@
+remove_runner: false
 runner_arch_git: |-
   {%- if ('arm' in ansible_facts.architecture and
     '64' in ansible_facts.architecture) or
