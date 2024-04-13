@@ -14,8 +14,4 @@
 - name: Setup runner
   ansible.builtin.include_tasks:
     file: runner_linux.yml
-
-- name: Setup runner systemd service
-  ansible.builtin.include_tasks:
-    file: service.yml
   when: ansible_facts.system == 'Linux'

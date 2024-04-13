@@ -83,3 +83,21 @@
   changed_when: return_configure_runner.rc != 0
   notify:
     - Restart GithubRunner Service
+
+- name: Create Systemd Service
+  ansible.builtin.template:
+    src: github-runner.service.j2
+    dest: /etc/systemd/system/github-runner.service
+    owner: "{{ service['user'] }}"
+    group: "{{ service['user'] }}"
+    mode: '0644'
+  notify:
+    - "Reload systemctl"
+  become: true
+
+- name: Enable service
+  ansible.builtin.systemd_service:
+    name: github-runner.service
+    state: "started"
+    enabled: true
+  become: true
