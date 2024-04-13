@@ -75,7 +75,7 @@
       su -c '/bin/bash config.sh --unattended \
       --url https://github.com/{{ repo }} \
       --token {{ runner_token.json["token"] }} \
-      --labels ansible_deployed' "{{ service['user'] }}"
+      --labels {{ runner_lables }}' "{{ service['user'] }}"
   become: true
   no_log: true
   when: is_latest_installed.rc != 0

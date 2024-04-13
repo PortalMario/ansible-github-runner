@@ -1,2 +1,5 @@
 repo: <owner/repo>
 auth_token: <github-auth-token>
+
+# Comma seperated lables
+runner_lables: ansible_deployed

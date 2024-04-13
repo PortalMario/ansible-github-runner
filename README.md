@@ -9,13 +9,17 @@ Platform and architecture independent ansible role for deyploying github-runners
 - sudo priviliges on target hosts
 
 ### Variables
-Fill "repo" and "auth_token" variable at: `./vars/repo.yml`
+Fill "repo" and "auth_token" variable at: `./vars/repo.yml`.
 ```
 repo: <owner/repo>
 auth_token: <github-auth-token>
+
+# Comma seperated lables
+runner_lables: ansible_deployed
 ```
 - **repo** = must contain the github owner and the github repo      name like this: portalmario/ansible-roles
 - **auth_token** = Must be one of [these](https://docs.github.com/en/rest/actions/self-hosted-runners?apiVersion=2022-11-28#create-a-registration-token-for-a-repository--fine-grained-access-tokens) token kinds or a classic PAT.
+- **runner_lables** (Optional) = Comma sperated list of additional custom lables for the runner. (e.g: `ansible_deployed,test-env`)
 
 ### Inventory and Execution
 After you defined your [ansible inventory](https://docs.ansible.com/ansible/latest/inventory_guide/intro_inventory.html) and a suitable [ansible playbook](https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_intro.html) (see `example_playbook.yml`) you could use the role like this:
@@ -24,7 +28,7 @@ After you defined your [ansible inventory](https://docs.ansible.com/ansible/late
 ```
 ansible-playbook -i example_inventory.yml example_playbook.yml --connection=local
 ```
-This will add a user (`github-runner`) and a systemd service (`github-runner.service`) for the runner. Files will only be stored at: `/srv/actions-runner`. Runners added by this ansible role will receive the tag: `ansible_deployed`.
+This will add a user (`github-runner`) and a systemd service (`github-runner.service`) for the runner. Files will only be stored at: `/srv/actions-runner`. Runners added by this ansible role will receive the lable: `ansible_deployed` if the "runner_lables" variable is unaltered.
 
 # Remove Runner
 To remove the runner, just add `-e "remove_runner=true"` to the end of the "ansible-playbook" command.
