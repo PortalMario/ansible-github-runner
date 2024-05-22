@@ -66,7 +66,23 @@
       Authorization: "Bearer {{ auth_token }}"
   no_log: true
   register: runner_token
-  when: is_latest_installed.rc != 0
+  when:
+    - is_latest_installed.rc != 0
+    - organization == 'None'
+
+- name: Get organization runner token
+  ansible.builtin.uri:
+    url: https://api.github.com/orgs/{{ organization }}/actions/runners/registration-token
+    method: POST
+    status_code: 201
+    headers:
+      Accept: "application/vnd.github+json"
+      Authorization: "Bearer {{ auth_token }}"
+  no_log: true
+  register: runner_token
+  when:
+    - is_latest_installed.rc != 0
+    - organization != 'None'
 
 - name: Configure latest runner
   ansible.builtin.command:
@@ -78,7 +94,28 @@
       --labels {{ runner_lables }}' "{{ service['user'] }}"
   become: true
   no_log: true
-  when: is_latest_installed.rc != 0
+  when:
+    - is_latest_installed.rc != 0
+    - organization == 'None'
+  register: return_configure_runner
+  changed_when: return_configure_runner.rc != 0
+  notify:
+    - Restart GithubRunner Service
+
+- name: Configure latest organization runner
+  ansible.builtin.command:
+    chdir: "{{ service['working_dir'] }}/"
+    cmd: |-
+      su -c '/bin/bash config.sh --unattended \
+      --url https://github.com/{{ organization }} \
+      --token {{ runner_token.json["token"] }} \
+      --runnergroup {{ org_runner_group }} \
+      --labels {{ runner_lables }}' "{{ service['user'] }}"
+  become: true
+  no_log: true
+  when:
+    - is_latest_installed.rc != 0
+    - organization != 'None'
   register: return_configure_runner
   changed_when: return_configure_runner.rc != 0
   notify:

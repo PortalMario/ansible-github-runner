@@ -14,11 +14,17 @@ Fill "repo" and "auth_token" variable at: `./vars/repo.yml`.
 repo: <owner/repo>
 auth_token: <github-auth-token>
 
+# Fill, to add runner as an organization runner
+organization: None
+org_runner_group: Default
+
 # Comma seperated lables
 runner_lables: ansible_deployed
 ```
 - **repo** = must contain the github owner and the github repo      name like this: portalmario/ansible-roles
-- **auth_token** = Must be one of [these](https://docs.github.com/en/rest/actions/self-hosted-runners?apiVersion=2022-11-28#create-a-registration-token-for-a-repository--fine-grained-access-tokens) token kinds or a classic PAT.
+- **auth_token** = Must be one of [these](https://docs.github.com/en/rest/actions/self-hosted-runners?apiVersion=2022-11-28#create-a-registration-token-for-a-repository--fine-grained-access-tokens) token kinds or a classic PAT. (Note, that [organization runners](https://docs.github.com/en/rest/actions/self-hosted-runners?apiVersion=2022-11-28#create-a-registration-token-for-an-organization) need different token scopes.)
+- **organization** (Optional) = Name of the organization, which this runner will be added to. (Repo variable will be ignored)
+- **org_runner_group** (Optional) = Name of the organization's runner group, which this runner will be added to. (NOTE: The group needs to exist before adding the runner to it.)
 - **runner_lables** (Optional) = Comma sperated list of additional custom lables for the runner. (e.g: `ansible_deployed,test-env`)
 
 ### Inventory and Execution
