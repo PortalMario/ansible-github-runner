@@ -1,5 +1,9 @@
 repo: <owner/repo>
 auth_token: <github-auth-token>
 
+# Fill, to add runner as an organization runner
+organization: None
+org_runner_group: Default
+
 # Comma seperated lables
 runner_lables: ansible_deployed
