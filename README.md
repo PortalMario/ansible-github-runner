@@ -32,14 +32,14 @@ After you defined your [ansible inventory](https://docs.ansible.com/ansible/late
 
 #### Example for localhost:
 ```
-ansible-playbook -i example_inventory.yml example_playbook.yml --connection=local
+ansible-playbook -i example_inventory example_playbook.yml --connection=local
 ```
 This will add a user (`github-runner`) and a systemd service (`github-runner.service`) for the runner. Files will only be stored at: `/srv/actions-runner`. Runners added by this ansible role will receive the lable: `ansible_deployed` if the "runner_lables" variable is unaltered.
 
 # Remove Runner
 To remove the runner, just add `-e "remove_runner=true"` to the end of the "ansible-playbook" command.
 ```
-ansible-playbook -i example_inventory.yml example_playbook.yml --connection=local -e "remove_runner=true"
+ansible-playbook -i example_inventory example_playbook.yml --connection=local -e "remove_runner=true"
 ```
 This will fully the runner and all of its files. (Keep in mind that systemd journal logs will persist if runner was a linux system.)
 
