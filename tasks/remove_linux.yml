@@ -14,7 +14,13 @@
       Accept: "application/vnd.github+json"
       Authorization: "Bearer {{ auth_token }}"
   no_log: true
-  register: runner_remove_token
+  register: private_runner_remove_token
+  when: organization == 'None'
+
+- name: Set token as fact
+  ansible.builtin.set_fact:
+    runner_remove_token: "{{ private_runner_remove_token.json.token }}"
+  no_log: true
   when: organization == 'None'
 
 - name: Get organization runner remove token
@@ -26,7 +32,13 @@
       Accept: "application/vnd.github+json"
       Authorization: "Bearer {{ auth_token }}"
   no_log: true
-  register: runner_remove_token
+  register: org_runner_remove_token
+  when: organization != 'None'
+
+- name: Set org. token as fact
+  ansible.builtin.set_fact:
+    runner_remove_token: "{{ org_runner_remove_token.json.token }}"
+  no_log: true
   when: organization != 'None'
 
 - name: Remove runner from repo
@@ -34,11 +46,16 @@
     chdir: "{{ service['working_dir'] }}/"
     cmd: |-
       su -c '/bin/bash config.sh remove \
-      --token {{ runner_remove_token.json["token"] }}' "{{ service['user'] }}"
+      --token {{ runner_remove_token }}' "{{ service['user'] }}"
   become: true
   no_log: true
   register: return_configure_runner
   changed_when: return_configure_runner.rc != 0
+
+- name: Remove token from fact
+  ansible.builtin.set_fact:
+    runner_remove_token: ""
+  no_log: true
 
 - name: Remove service file
   ansible.builtin.file:
