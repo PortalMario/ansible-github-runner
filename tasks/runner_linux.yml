@@ -155,3 +155,9 @@
     state: "started"
     enabled: true
   become: true
+
+- name: Add reboot cron for runner
+  ansible.builtin.cron:
+    name: "Ensure fully startet runner"
+    special_time: reboot
+    job: "systemctl status github-runner | grep dead && systemctl restart github-runner"
