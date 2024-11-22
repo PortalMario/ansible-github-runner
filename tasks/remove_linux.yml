@@ -76,3 +76,8 @@
     name: "{{ service['user'] }}"
     state: absent
   become: true
+
+- name: Remove reboot cron for runner
+  ansible.builtin.cron:
+    name: "Ensure fully startet runner"
+    state: absent
